@@ -3,7 +3,6 @@ from random import randint
 import re
 
 st.set_page_config(page_title="Story", page_icon="🧩")
-st.title("Story")
 
 dices = ['к4', 'к6', 'к8', 'к12', 'к20', 'к100', 'Свой']
 
