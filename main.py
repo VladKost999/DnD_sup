@@ -2,9 +2,63 @@ import streamlit as st
 from random import randint
 import re
 
-st.set_page_config(page_title="Dnd", page_icon="🧩")
-st.session_state.lastClick = 2
+st.set_page_config(page_title="DnD", page_icon="🧩")
 dices = ['к4', 'к6', 'к8', 'к12', 'к20', 'к100', 'Свой']
+
+
+if "continue_access" not in st.session_state:
+    st.session_state.continue_access = False
+
+if "dice_visible" not in st.session_state:
+    st.session_state.dice_visible = 0
+
+if "name_list" not in st.session_state:
+    st.session_state.name_list = {}
+
+if "start_val" not in st.session_state:
+    st.session_state.start_val = {}
+
+if "names" not in st.session_state:
+    st.session_state.names = ''
+
+if "last_click" not in st.session_state:
+    st.session_state.last_click = False
+
+
+def num_input(i, col, place, columns):
+    st.session_state.last_click = True
+    return st.number_input('',
+                           key=st.session_state.names[i] + str(columns[col]),
+                           value=st.session_state.name_list[st.session_state.names[i]][place],
+                           label_visibility='collapsed')
+
+
+def add_ch():
+    first_names = st.session_state.name_list.keys()
+    for name in st.session_state.names:
+        if name not in first_names:
+            st.session_state.name_list[name] = [15, 15, 0]
+    st.code(st.session_state.name_list)
+    #     Display charters
+
+    columns = ['Имя', 'Броня', 'ХП', 'Иниц.']
+    len_col = len(columns)
+    cols = st.columns([3, 2, 2, 2])
+    for i in range(len_col):
+        with cols[i]:
+            st.write(columns[i])
+    for i in range(len(st.session_state.names)):
+        with st.container():
+            with cols[0]:
+                st.write(st.session_state.names[i])
+            with cols[1]:
+                defence = num_input(i, 1, 0, columns)
+            with cols[2]:
+                life = num_input(i, 2, 1, columns)
+            with cols[3]:
+                ini = num_input(i, 3, 2, columns)
+            st.session_state.start_val[st.session_state.names[i]] = [defence, life, ini]
+
 
 with st.sidebar:
     col1, col2 = st.columns(2)
@@ -16,9 +70,9 @@ with st.sidebar:
         if st.button(f'Сгенерировать {dice_multi}{dice}', use_container_width=True):
             if dice_multi > 1:
                 random_dices = [randint(1, int(dice.split('к')[1])) for i in range(dice_multi)]
-                st.code(' + '.join(map(str, random_dices)) + ' = ' + str(sum(random_dices)))
+                st.session_state.dice_visible = (' + '.join(map(str, random_dices)) + ' = ' + str(sum(random_dices)))
             else:
-                st.code(randint(1, int(dice.split('к')[1])))
+                st.session_state.dice_visible = (randint(1, int(dice.split('к')[1])))
     else:
         col1, col2 = st.columns(2)
         with col1:
@@ -27,39 +81,20 @@ with st.sidebar:
             do = st.number_input('До', max_value=100)
         if st.button(f'Сгенерировать x{dice_multi}', use_container_width=True):
             if dice_multi > 1:
-                random_dices = [randint(ot, do) for i in range(dice_multi)]
-                st.code(' + '.join(map(str, random_dices)) + ' = ' + str(sum(random_dices)))
+                random_dices = [randint(min(ot, do), max(ot, do)) for i in range(dice_multi)]
+                st.session_state.dice_visible = (' + '.join(map(str, random_dices)) + ' = ' + str(sum(random_dices)))
             else:
-                st.code(randint(ot, do))
-coll1, coll2 = st.columns([3,1])
+                st.session_state.dice_visible = (randint(min(ot, do), max(ot, do)))
+    st.code(st.session_state.dice_visible)
+
+coll1, coll2 = st.columns([3, 1])
 with coll1:
-    names = st.text_input('Введите имена персонажей через запятую', label_visibility='collapsed')
+    st.session_state.names = re.split(r'\s*,\s*|\s*,\s*',
+                                      st.text_input('', value='Введите имена персонажей через запятую',
+                                                    label_visibility='collapsed'))
 with coll2:
-    st.button('Продолжить', use_container_width=True)
-name_list = list(map(lambda x: [x, 15, 15, 0], re.split(r'\s*,\s*|\s*,\s*', names)))
-st.code(name_list)
-# columns = ['Имя', 'Броня', 'ХП', 'Инициатива']
-# len_col = len(columns)
-# cols = st.columns(len_col)
-# for i in range(len(columns)):
-#     with cols[i]:
-#         st.write(columns[i])
-# for i in range(len(name_list)):
-#     with st.container():
-#         cols = st.columns(len_col)
-#         with cols[0]:
-#             st.write(name_list[i][0])
-#         with cols[1]:
-#             name_list[i][1] = st.number_input('', key=name_list[i][0] + str(columns[1]),
-#                                               value=name_list[i][1],
-#                                               label_visibility='collapsed')
-#         with cols[2]:
-#             name_list[i][2] = st.number_input('', key=name_list[i][0] + str(columns[2]),
-#                                               value=name_list[i][2],
-#                                               label_visibility='collapsed')
-#         with cols[3]:
-#             name_list[i][3] = st.number_input('', key=name_list[i][0] + str(columns[3]),
-#                                               value=name_list[i][3],
-#                                               label_visibility='collapsed')
-# # st.code(name_list)
-# # st.code(list(st.session_state.keys()))
+    if st.button('Продолжить', use_container_width=True):
+        st.session_state.continue_access = True
+if st.session_state.continue_access and st.session_state.names != ['']:
+    st.session_state.start_input = st.session_state.name_list
+    add_ch()
