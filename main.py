@@ -7,6 +7,7 @@ st.title('ЛЮБЛЮ ВИКУ<3')
 dices = ['к4', 'к6', 'к8', 'к12', 'к20', 'к100', 'Свой']
 
 with st.sidebar:
+    st.title('ЛЮБЛЮ ВИКУ<3')
     col1, col2 = st.columns(2)
     with col1:
         dice_multi = st.number_input('Кол-во', min_value=1)
