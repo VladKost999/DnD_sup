@@ -14,11 +14,14 @@ if "dice_visible" not in st.session_state:
 if "name_list" not in st.session_state:
     st.session_state.name_list = {}
 
-if "start_val" not in st.session_state:
-    st.session_state.start_val = {}
+if "save" not in st.session_state:
+    st.session_state.save = {}
 
 if "names" not in st.session_state:
     st.session_state.names = ''
+
+if "last_rand" not in st.session_state:
+    st.session_state.last_rand = False
 
 
 def num_input(i, col, place, columns):
@@ -54,7 +57,15 @@ def add_ch():
                 life = num_input(i, 2, 1, columns)
             with cols[3]:
                 ini = num_input(i, 3, 2, columns)
-            # st.session_state.name_list[st.session_state.names[i]] = [defence, life, ini]
+            st.session_state.save[st.session_state.names[i]] = [defence, life, ini]
+
+    def save_char():
+        for i in st.session_state.save.keys():
+            st.session_state.name_list[i] = st.session_state.save[i]
+
+    butt = st.button('Сохранить характеристики', use_container_width=True, on_click=save_char)
+
+    st.session_state.last_rand = st.button('Рандом характеристики', use_container_width=True)
 
 
 with st.sidebar:
@@ -85,13 +96,19 @@ with st.sidebar:
     st.code(st.session_state.dice_visible)
 
 coll1, coll2 = st.columns([3, 1])
+
+
+def access_continue(bool):
+    st.session_state.continue_access = bool
+
+
 with coll1:
     st.session_state.names = re.split(r'\s*,\s*|\s*,\s*',
                                       st.text_input('', value='Введите имена персонажей через запятую',
-                                                    label_visibility='collapsed'))
+                                                    label_visibility='collapsed', on_change=access_continue,
+                                                    args=[False]))
 with coll2:
     if st.button('Продолжить', use_container_width=True):
         st.session_state.continue_access = True
 if st.session_state.continue_access and st.session_state.names != ['']:
     add_ch()
-
