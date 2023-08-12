@@ -5,7 +5,6 @@ import re
 st.set_page_config(page_title="DnD", page_icon="🧩")
 dices = ['к4', 'к6', 'к8', 'к12', 'к20', 'к100', 'Свой']
 
-
 if "continue_access" not in st.session_state:
     st.session_state.continue_access = False
 
@@ -21,12 +20,8 @@ if "start_val" not in st.session_state:
 if "names" not in st.session_state:
     st.session_state.names = ''
 
-if "last_click" not in st.session_state:
-    st.session_state.last_click = False
-
 
 def num_input(i, col, place, columns):
-    st.session_state.last_click = True
     return st.number_input('',
                            key=st.session_state.names[i] + str(columns[col]),
                            value=st.session_state.name_list[st.session_state.names[i]][place],
@@ -34,11 +29,13 @@ def num_input(i, col, place, columns):
 
 
 def add_ch():
+    # st.session_state.start_val = st.session_state.name_list
     first_names = st.session_state.name_list.keys()
     for name in st.session_state.names:
         if name not in first_names:
             st.session_state.name_list[name] = [15, 15, 0]
     st.code(st.session_state.name_list)
+
     #     Display charters
 
     columns = ['Имя', 'Броня', 'ХП', 'Иниц.']
@@ -57,7 +54,7 @@ def add_ch():
                 life = num_input(i, 2, 1, columns)
             with cols[3]:
                 ini = num_input(i, 3, 2, columns)
-            st.session_state.start_val[st.session_state.names[i]] = [defence, life, ini]
+            # st.session_state.name_list[st.session_state.names[i]] = [defence, life, ini]
 
 
 with st.sidebar:
@@ -96,5 +93,5 @@ with coll2:
     if st.button('Продолжить', use_container_width=True):
         st.session_state.continue_access = True
 if st.session_state.continue_access and st.session_state.names != ['']:
-    st.session_state.start_input = st.session_state.name_list
     add_ch()
+
