@@ -20,8 +20,17 @@ if "save" not in st.session_state:
 if "names" not in st.session_state:
     st.session_state.names = ''
 
-if "last_rand" not in st.session_state:
-    st.session_state.last_rand = False
+
+def rand_ini():
+    for i in st.session_state.save.keys():
+        st.session_state.save[i][-1] = randint(1, 20)
+    st.session_state.names = sorted(st.session_state.names, key=lambda key: st.session_state.name_list[key][-1])
+    save_char()
+
+
+def save_char():
+    for i in st.session_state.save.keys():
+        st.session_state.name_list[i] = st.session_state.save[i]
 
 
 def num_input(i, col, place, columns):
@@ -32,40 +41,31 @@ def num_input(i, col, place, columns):
 
 
 def add_ch():
-    # st.session_state.start_val = st.session_state.name_list
     first_names = st.session_state.name_list.keys()
     for name in st.session_state.names:
         if name not in first_names:
             st.session_state.name_list[name] = [15, 15, 0]
-    st.code(st.session_state.name_list)
 
     #     Display charters
-
+    st.button('Случайная инициатива', use_container_width=True, on_click=rand_ini)
     columns = ['Имя', 'Броня', 'ХП', 'Иниц.']
     len_col = len(columns)
     cols = st.columns([3, 2, 2, 2])
+    st.code(st.session_state.names)
     for i in range(len_col):
         with cols[i]:
             st.write(columns[i])
     for i in range(len(st.session_state.names)):
-        with st.container():
-            with cols[0]:
-                st.write(st.session_state.names[i])
-            with cols[1]:
-                defence = num_input(i, 1, 0, columns)
-            with cols[2]:
-                life = num_input(i, 2, 1, columns)
-            with cols[3]:
-                ini = num_input(i, 3, 2, columns)
-            st.session_state.save[st.session_state.names[i]] = [defence, life, ini]
+        with cols[0]:
+            st.write(st.session_state.names[i])
+        with cols[1]:
+            defence = num_input(i, 1, 0, columns)
+        with cols[2]:
+            life = num_input(i, 2, 1, columns)
+        with cols[3]:
+            ini = num_input(i, 3, 2, columns)
+        st.session_state.save[st.session_state.names[i]] = [defence, life, ini]
 
-    def save_char():
-        for i in st.session_state.save.keys():
-            st.session_state.name_list[i] = st.session_state.save[i]
-
-    butt = st.button('Сохранить характеристики', use_container_width=True, on_click=save_char)
-
-    st.session_state.last_rand = st.button('Рандом характеристики', use_container_width=True)
 
 
 with st.sidebar:
@@ -99,6 +99,7 @@ coll1, coll2 = st.columns([3, 1])
 
 
 def access_continue(bool):
+    save_char()
     st.session_state.continue_access = bool
 
 
@@ -108,7 +109,7 @@ with coll1:
                                                     label_visibility='collapsed', on_change=access_continue,
                                                     args=[False]))
 with coll2:
-    if st.button('Продолжить', use_container_width=True):
+    if st.button('Продолжить', use_container_width=True, on_click=save_char):
         st.session_state.continue_access = True
 if st.session_state.continue_access and st.session_state.names != ['']:
     add_ch()
