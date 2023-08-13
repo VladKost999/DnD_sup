@@ -45,7 +45,7 @@ def access_continue(bool):
 def main():
     coll1, coll2 = st.columns([3, 1])
     with coll1:
-        names = re.split(r'\s*,\s*|\s*,\s*', st.text_input('', value='1,2,3,4,5,6',
+        names = re.split(r'\s*,\s*|\s*,\s*', st.text_input('', value='Введите имена через запятую!',
                                                            label_visibility='collapsed', on_change=access_continue,
                                                            args=[False]))
     with coll2:
