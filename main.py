@@ -12,6 +12,7 @@ def account():
         Vika = st.radio('Точно-точно Вика?', ['Нет', 'ДА КОНЕЧНО'], horizontal=True)
         if Vika == 'ДА КОНЕЧНО':
             st.title('ЛЮ ТЯ ТОГДА<3')
+            st.balloons()
 
 
 def sidebar():
