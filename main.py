@@ -2,9 +2,11 @@ import streamlit as st
 from random import randint
 import re
 
-for i in ['names', 'continue_access', 'list', 'save', 'dice_visible', 'Vika']:
-    if i not in st.session_state:
-        st.session_state[i] = {}
+
+def gen_ss():
+    for i in ['names', 'continue_access', 'list', 'save', 'dice_visible', 'Vika']:
+        if i not in st.session_state:
+            st.session_state[i] = {}
 
 
 def account():
@@ -12,13 +14,12 @@ def account():
         Vika = st.radio('Точно-точно Вика?', ['Нет', 'ДА КОНЕЧНО'], horizontal=True)
         if Vika == 'ДА КОНЕЧНО':
             st.title('ЛЮ ТЯ ТОГДА<3')
-            st.balloons()
 
 
 def sidebar():
     with st.sidebar:
         if st.button('Кнопка только для Вики', use_container_width=True):
-            st.session_state.Vika = True
+            st.session_state.Vika = not st.session_state.Vika
         account()
         col1, col2 = st.columns(2)
         with col1:
@@ -54,6 +55,7 @@ def access_continue(bool):
 
 
 def main():
+    gen_ss()
     coll1, coll2 = st.columns([3, 1])
     with coll1:
         names = re.split(r'\s*,\s*|\s*,\s*', st.text_input('', value='1,2,3,4,5,6',
@@ -136,5 +138,5 @@ def add_obj(names):
 
 
 if __name__ == '__main__':
-    sidebar()
     main()
+    sidebar()
