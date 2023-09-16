@@ -14,6 +14,7 @@ def account():
         Vika = st.radio('Точно-точно Вика?', ['Нет', 'ДА КОНЕЧНО'], horizontal=True)
         if Vika == 'ДА КОНЕЧНО':
             st.title('ЛЮ ТЯ ТОГДА<3')
+            st.balloons()
 
 
 def sidebar():
@@ -70,7 +71,7 @@ def main():
 def text_to_names(names):
     for name in names:
         if name not in st.session_state.list:
-            st.session_state.list[name] = [15, 15, 0]
+            st.session_state.list[name] = [15, 15, 15, 0]
     return buttons(names)
 
 
@@ -117,8 +118,8 @@ def save_char():
 
 
 def add_obj(names):
-    columns = ['Имя', 'Броня', 'ХП', 'Иниц.']
-    plan = [4, 3, 3, 2]
+    columns = ['Имя', 'КД', 'ХП', 'Безумие', 'Инициатива']
+    plan = [4, 3, 3, 3, 3]
     cols = st.columns(plan)
     for i in range(len(cols)):
         with cols[i]:
@@ -134,7 +135,10 @@ def add_obj(names):
                 life = num_input(i, columns, 1)
             with cols[3]:
                 ini = num_input(i, columns, 2)
-            st.session_state.save[st.session_state.names[i]] = [defence, life, ini]
+            with cols[4]:
+                mad = num_input(i, columns, 3)
+
+            st.session_state.save[st.session_state.names[i]] = [defence, life, ini, mad]
 
 
 if __name__ == '__main__':
