@@ -71,7 +71,7 @@ def main():
 def text_to_names(names):
     for name in names:
         if name not in st.session_state.list:
-            st.session_state.list[name] = [15, 15, 15, 0]
+            st.session_state.list[name] = [15, 15, 0, 0]
     return buttons(names)
 
 
