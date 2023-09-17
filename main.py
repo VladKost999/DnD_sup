@@ -118,9 +118,8 @@ def save_char():
 
 
 def add_obj(names):
-    st.number_input('')
     columns = ['Имя', 'КД', 'ХП', 'Безумие', 'Инициатива']
-    plan = [4, 3, 3, 3, 3]
+    plan = [3, 3, 3, 3, 3]
     cols = st.columns(plan)
     for i in range(len(cols)):
         with cols[i]:
