@@ -48,6 +48,24 @@ def sidebar():
                     st.session_state.dice_visible = (randint(min(ot, do), max(ot, do)))
         if st.session_state.dice_visible:
             st.code(st.session_state.dice_visible)
+        # st.sidebar.write("Список объектов:")
+        # columns = ['Имя', 'КД', 'ХП', 'Инициатива']
+        # plan = [3, 3, 3, 3, 2]
+        # cols = st.columns(plan)
+        # for i in range(len(cols)):
+        #     with cols[i]:
+        #         st.write(columns[i])
+        # for i in range(len(names)):
+        #     with st.container():
+        #         cols = st.columns(plan)
+        #         with cols[0]:
+        #             st.write(st.session_state.names[i])
+        #         with cols[1]:
+        #             defence = num_input(i, columns, 0)
+        #         with cols[2]:
+        #             life = num_input(i, columns, 1)
+        #
+        #         st.session_state.save[st.session_state.names[i]] = [defence, life]
 
 
 def access_continue(bool):
@@ -118,8 +136,8 @@ def save_char():
 
 
 def add_obj(names):
-    columns = ['Имя', 'КД', 'ХП', 'Безумие', 'Инициатива']
-    plan = [3, 3, 3, 3, 2]
+    columns = ['Имя', 'КД', 'ХП', 'Инициатива']
+    plan = [1, 1, 1, 1]
     cols = st.columns(plan)
     for i in range(len(cols)):
         with cols[i]:
@@ -135,10 +153,8 @@ def add_obj(names):
                 life = num_input(i, columns, 1)
             with cols[3]:
                 ini = num_input(i, columns, 2)
-            with cols[4]:
-                mad = num_input(i, columns, 3)
 
-            st.session_state.save[st.session_state.names[i]] = [defence, life, ini, mad]
+            st.session_state.save[st.session_state.names[i]] = [defence, life, ini]
 
 
 if __name__ == '__main__':
