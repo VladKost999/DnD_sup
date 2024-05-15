@@ -28,7 +28,7 @@ def main(page: ft.Page):
             expand=True,
             text_vertical_align=ft.VerticalAlignment.CENTER,
             text_style=ft.TextStyle(height=1),
-            border_radius=20,
+            border_radius=15,
             filled=False,
         )
 
@@ -52,6 +52,7 @@ def main(page: ft.Page):
         text_field = ft.TextField(
             value=str(value),
             on_change=lambda e, idx=index, attr=attr_name: update_character_value(idx, attr, e.control.value),
+            expand=True,
             width=120,
             fill_color=first_color,
             border_width=0,
@@ -70,19 +71,8 @@ def main(page: ft.Page):
             spacing=-0.5
         )
 
-        return ft.Container(content=row, alignment=ft.alignment.center,
+        return ft.Container(content=row, alignment=ft.alignment.center, expand=True,
                             border_radius=15, height=50, border=ft.border.all(3, first_color))
-
-    def row_with_alignment(align: ft.MainAxisAlignment):
-        return ft.Column(
-            [
-                ft.Text(str(align), size=16),
-                ft.Container(
-                    content=ft.Row(items(3), alignment=align),
-                    bgcolor=ft.colors.AMBER_100,
-                ),
-            ]
-        )
 
     def animate_container(color_on_hover, color_on_leave):
         def on_hover(e):
