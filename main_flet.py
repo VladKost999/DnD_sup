@@ -23,7 +23,6 @@ def main(page: ft.Page):
     page.scroll = ft.ScrollMode.ADAPTIVE
     page.window_min_width = 600
     page.on_resize = on_window_resize
-    page.icon
 
     def create_custom_textfield(index, attr_name, value):
         return ft.TextField(
