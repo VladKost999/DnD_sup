@@ -1,4 +1,5 @@
 import flet as ft
+import os
 from random import randint
 
 
@@ -20,20 +21,27 @@ def main(page: ft.Page):
     page.title = 'DnD sup'
     page.window_resizable = True
     page.scroll = ft.ScrollMode.ADAPTIVE
-    page.window_min_width = 600
+    page.window_min_width = 550
+
     page.on_resize = on_window_resize
     page.adaptive = True
-    page.padding = ft.padding.only(left=20, right=20, top=30)
+    page.padding = ft.padding.symmetric(horizontal=20)
+    page.vertical_alignment = ft.alignment.top_center
+    page.theme_mode = ft.ThemeMode.DARK
 
-    andro = page.platform == ft.PagePlatform.ANDROID
-    if andro:
+    bg_color = '#0e1117'
+    first_color = "#262730"
+    first_color_hover = "#313240"
+    mini_ui = page.platform == ft.PagePlatform.ANDROID
+    if mini_ui:
         page.padding = ft.padding.only(left=20, right=20, top=30)
-        padding_custom = 0
-        border_custom = 0
-    else:
-        page.padding = ft.padding.symmetric(horizontal=20)
-        padding_custom = 15
+        spacing_custom = 5
         border_custom = 3
+        border_col_custom = first_color_hover
+    else:
+        spacing_custom = 15
+        border_custom = 3
+        border_col_custom = first_color
 
     def create_custom_textfield(index, attr_name, value):
         return ft.TextField(
@@ -41,7 +49,7 @@ def main(page: ft.Page):
             on_change=lambda e, idx=index, attr=attr_name: update_character_value(idx, attr, e.control.value),
             height=45,
             fill_color=first_color,
-            border_color=first_color,
+            border_color=border_col_custom,
             border_width=border_custom,
             text_size=25,
             expand=2,
@@ -83,8 +91,10 @@ def main(page: ft.Page):
             filled=False,
         )
 
-        btn_minus = ft.IconButton(icon=ft.icons.REMOVE, on_click=minus_click, visible=width_bool)
-        btn_plus = ft.IconButton(icon=ft.icons.ADD, on_click=plus_click, visible=width_bool)
+        btn_minus = ft.IconButton(icon=ft.icons.REMOVE, on_click=minus_click,
+                                  visible=width_bool, width=25, padding=-20)
+        btn_plus = ft.IconButton(icon=ft.icons.ADD, on_click=plus_click,
+                                 visible=width_bool, width=25, padding=-20)
 
         row = ft.Row(
             controls=[text_field, btn_minus, btn_plus],
@@ -93,7 +103,7 @@ def main(page: ft.Page):
         )
 
         return ft.Container(content=row, alignment=ft.alignment.center, expand=True,
-                            border_radius=15, height=45, border=ft.border.all(border_custom, first_color))
+                            border_radius=15, height=45, border=ft.border.all(border_custom, border_col_custom))
 
     def animate_container(color_on_hover, color_on_leave):
         def on_hover(e):
@@ -122,34 +132,39 @@ def main(page: ft.Page):
         rotate_device_alert.open = False
         page.update()
 
+    def on_exit_clicked(e):
+        os._exit(0)
+
     rotate_device_alert = ft.AlertDialog(
-        modal=True,  # Делаем диалог модальным, чтобы остальные элементы были неактивны.
+        modal=True,
         title=ft.Text("Измените ориентацию устройства"),
         content=ft.Text("Для вашего же удобства, пожалуйста, переверните ваше устройство."),
         actions=[
             ft.TextButton(text="OK", on_click=close_dlg),
+            # ft.TextButton(text="Выйти", on_click=on_exit_clicked),
         ]
     )
-    if andro and page.width <= 470:
+    if page.platform == ft.PagePlatform.ANDROID:
         page.dialog = rotate_device_alert
         rotate_device_alert.open = True
         page.update()
 
     def update_ui():
-
         characters_view.controls.clear()
-        btn_visible = page.width >= 900
+        btn_visible = page.width >= 750
         for index, char in enumerate(characters_list):
             if char.active:
                 name_text = create_custom_textfield(index, "name", char.name)
                 kd_input = create_super_custom_textfield(index, "kd", char.kd, btn_visible)
                 hp_input = create_super_custom_textfield(index, "hp", char.hp, btn_visible)
-                initiative_input = create_super_custom_textfield(index, "initiative", char.initiative, btn_visible)
-                delete_btn = ft.IconButton(icon=ft.icons.DELETE, expand=False, icon_color='red', width=40,
-                                           on_click=lambda e, idx=index: deactivate_character(e, idx))
+                initiative_input = create_super_custom_textfield(index, "initiative", char.initiative,
+                                                                 btn_visible)
+                delete_btn = ft.IconButton(icon=ft.icons.DELETE, expand=False, icon_color='red',
+                                           on_click=lambda e, idx=index: deactivate_character(e, idx),
+                                           width=25, padding=-20)
                 row_ch = ft.Row(
                     controls=[name_text, kd_input, hp_input, initiative_input, delete_btn],
-                    alignment=ft.alignment.center, spacing=padding_custom
+                    alignment=ft.alignment.center, spacing=spacing_custom
                 )
                 container_ch = ft.Container(content=row_ch, padding=ft.padding.symmetric(horizontal=10),
                                             bgcolor=first_color, height=50,
@@ -180,11 +195,6 @@ def main(page: ft.Page):
         name_input.update()
         update_ui()
 
-    page.vertical_alignment = ft.alignment.top_center
-    bg_color = '#0e1117'
-    first_color = "#262730"
-    first_color_hover = "#313240"
-    page.theme_mode = bg_color
     characters_list = []
 
     name_input = ft.TextField(label="Имя персонажа",
@@ -232,7 +242,7 @@ def main(page: ft.Page):
     ini_title = ft.Text(value="ИНИ", expand=1, text_align=ft.TextAlign.CENTER)
     text_cols = [name_title, kd_title, hp_title, ini_title]
     page.add(
-        ft.Container(ft.Row(controls=text_cols, spacing=padding_custom), padding=ft.padding.only(left=10, right=60)))
+        ft.Container(ft.Row(controls=text_cols, spacing=spacing_custom), padding=ft.padding.only(left=10, right=60)))
 
     characters_view = ft.Column()
     page.add(characters_view)
