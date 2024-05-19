@@ -18,17 +18,38 @@ def main(page: ft.Page):
         current_width = e.control.width
         update_ui()
 
+    page.drawer = ft.NavigationDrawer(
+        controls=[
+            ft.Container(height=12),
+            ft.NavigationDrawerDestination(
+                label="Item 1",
+                icon=ft.icons.DOOR_BACK_DOOR_OUTLINED,
+                selected_icon_content=ft.Icon(ft.icons.DOOR_BACK_DOOR),
+            ),
+            ft.Divider(thickness=2),
+            ft.NavigationDrawerDestination(
+                icon_content=ft.Icon(ft.icons.MAIL_OUTLINED),
+                label="Item 2",
+                selected_icon=ft.icons.MAIL,
+            ),
+            ft.NavigationDrawerDestination(
+                icon_content=ft.Icon(ft.icons.PHONE_OUTLINED),
+                label="Item 3",
+                selected_icon=ft.icons.PHONE,
+            ),
+        ],
+    )
+
+
     page.title = 'DnD sup'
     page.window_resizable = True
     page.scroll = ft.ScrollMode.ADAPTIVE
     page.window_min_width = 550
-
     page.on_resize = on_window_resize
     page.adaptive = True
     page.padding = ft.padding.symmetric(horizontal=20)
     page.vertical_alignment = ft.alignment.top_center
     page.theme_mode = ft.ThemeMode.DARK
-
     bg_color = '#0e1117'
     first_color = "#262730"
     first_color_hover = "#313240"
@@ -132,16 +153,12 @@ def main(page: ft.Page):
         rotate_device_alert.open = False
         page.update()
 
-    def on_exit_clicked(e):
-        os._exit(0)
-
     rotate_device_alert = ft.AlertDialog(
         modal=True,
         title=ft.Text("Измените ориентацию устройства"),
         content=ft.Text("Для вашего же удобства, пожалуйста, переверните ваше устройство."),
         actions=[
             ft.TextButton(text="OK", on_click=close_dlg),
-            # ft.TextButton(text="Выйти", on_click=on_exit_clicked),
         ]
     )
     if page.platform == ft.PagePlatform.ANDROID:
@@ -195,8 +212,17 @@ def main(page: ft.Page):
         name_input.update()
         update_ui()
 
+    def show_drawer(e):
+        e.control.icon = ft.icons.MENU_OPEN
+        page.drawer.open = True
+        page.drawer.update()
+
     characters_list = []
 
+    menu_button = ft.FloatingActionButton(icon=ft.icons.MENU,
+                                          height=50,
+                                          elevation=0,
+                                          on_click=show_drawer)
     name_input = ft.TextField(label="Имя персонажа",
                               fill_color=first_color,
                               border_color=first_color,
@@ -207,7 +233,7 @@ def main(page: ft.Page):
                                          height=50,
                                          elevation=0,
                                          on_click=add_character)
-    input_row = ft.Row(controls=[name_input, add_button])
+    input_row = ft.Row(controls=[menu_button, name_input, add_button])
     input_container = ft.Container(content=input_row, padding=ft.padding.only(top=20))
     page.add(input_container)
 
