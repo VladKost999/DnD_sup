@@ -13,33 +13,36 @@ class Character:
         self.btn_visible = True
 
 
+class PopupColorItem(ft.PopupMenuItem):
+    def __init__(self, color, name):
+        super().__init__()
+        self.content = ft.Row(
+            controls=[
+                ft.Icon(name=ft.icons.COLOR_LENS_OUTLINED, color=color),
+                ft.Text(name),
+            ],
+        )
+        self.on_click = self.seed_color_changed
+        self.data = color
+
+    def seed_color_changed(self, e):
+        self.page.theme = self.page.dark_theme = ft.theme.Theme(
+            color_scheme_seed=self.data
+        )
+        self.page.update()
+
+
 def main(page: ft.Page):
+    def theme_changed(e):
+        if e.page.theme_mode == ft.ThemeMode.LIGHT:
+            e.page.theme_mode = ft.ThemeMode.DARK
+        else:
+            e.page.theme_mode = ft.ThemeMode.LIGHT
+        e.page.update()
+
     def on_window_resize(e):
         current_width = e.control.width
         update_ui()
-
-    page.drawer = ft.NavigationDrawer(
-        controls=[
-            ft.Container(height=12),
-            ft.NavigationDrawerDestination(
-                label="Item 1",
-                icon=ft.icons.DOOR_BACK_DOOR_OUTLINED,
-                selected_icon_content=ft.Icon(ft.icons.DOOR_BACK_DOOR),
-            ),
-            ft.Divider(thickness=2),
-            ft.NavigationDrawerDestination(
-                icon_content=ft.Icon(ft.icons.MAIL_OUTLINED),
-                label="Item 2",
-                selected_icon=ft.icons.MAIL,
-            ),
-            ft.NavigationDrawerDestination(
-                icon_content=ft.Icon(ft.icons.PHONE_OUTLINED),
-                label="Item 3",
-                selected_icon=ft.icons.PHONE,
-            ),
-        ],
-    )
-
 
     page.title = 'DnD sup'
     page.window_resizable = True
@@ -50,35 +53,59 @@ def main(page: ft.Page):
     page.padding = ft.padding.symmetric(horizontal=20)
     page.vertical_alignment = ft.alignment.top_center
     page.theme_mode = ft.ThemeMode.DARK
-    bg_color = '#0e1117'
-    first_color = "#262730"
-    first_color_hover = "#313240"
     mini_ui = page.platform == ft.PagePlatform.ANDROID
+
     if mini_ui:
         page.padding = ft.padding.only(left=20, right=20, top=30)
         spacing_custom = 5
-        border_custom = 3
-        border_col_custom = first_color_hover
     else:
-        spacing_custom = 15
-        border_custom = 3
-        border_col_custom = first_color
+        spacing_custom = 10
+
+    dark_light_text = ft.Text("Переключить тему", expand=True, text_align=ft.TextAlign.CENTER)
+    dark_light_icon = ft.IconButton(
+        icon=ft.icons.BRIGHTNESS_2_OUTLINED,
+        tooltip="Переключить тему",
+        on_click=theme_changed,
+    )
+
+    color_lens_button = ft.PopupMenuButton(
+        icon=ft.icons.COLOR_LENS_OUTLINED,
+        items=[
+            PopupColorItem(color="deeppurple", name="Deep purple"),
+            PopupColorItem(color="indigo", name="Indigo"),
+            PopupColorItem(color="blue", name="Blue (default)"),
+            PopupColorItem(color="teal", name="Teal"),
+            PopupColorItem(color="green", name="Green"),
+            PopupColorItem(color="yellow", name="Yellow"),
+            PopupColorItem(color="orange", name="Orange"),
+            PopupColorItem(color="deeporange", name="Deep orange"),
+            PopupColorItem(color="pink", name="Pink"),
+        ],
+        tooltip="Выбор цветовой схемы",
+    )
+    page.drawer = ft.NavigationDrawer(
+        controls=[
+            ft.Container(ft.Row(controls=[dark_light_icon, dark_light_text, color_lens_button]),
+                         padding=ft.padding.symmetric(horizontal=15)),
+            ft.Divider(),
+            ft.Container(content=ft.Text(value='Пока настроек нет'),
+                         padding=ft.padding.symmetric(horizontal=15))
+        ],
+    )
 
     def create_custom_textfield(index, attr_name, value):
-        return ft.TextField(
+        return ft.Card(ft.TextField(
             value=str(value),
             on_change=lambda e, idx=index, attr=attr_name: update_character_value(idx, attr, e.control.value),
             height=45,
-            fill_color=first_color,
-            border_color=border_col_custom,
-            border_width=border_custom,
             text_size=25,
             expand=2,
-            text_vertical_align=ft.VerticalAlignment.CENTER,
+            text_vertical_align=-0.7,
             text_style=ft.TextStyle(height=1),
             border_radius=15,
             filled=False,
-        )
+            border_width=0,
+        ), expand=2, height=50, variant=ft.CardVariant.OUTLINED)
 
     def update_character_value(index, attribute, new_value):
         char = characters_list[index]
@@ -103,7 +130,6 @@ def main(page: ft.Page):
             input_filter=ft.NumbersOnlyInputFilter(),
             expand=1,
             width=120,
-            fill_color=first_color,
             border_width=0,
             text_size=25,
             text_vertical_align=-0.7,
@@ -123,15 +149,7 @@ def main(page: ft.Page):
             spacing=-0.5
         )
 
-        return ft.Container(content=row, alignment=ft.alignment.center, expand=True,
-                            border_radius=15, height=45, border=ft.border.all(border_custom, border_col_custom))
-
-    def animate_container(color_on_hover, color_on_leave):
-        def on_hover(e):
-            e.control.bgcolor = color_on_hover if e.data == "true" else color_on_leave
-            e.control.update()
-
-        return on_hover
+        return ft.Card(content=row, expand=True, variant=ft.CardVariant.OUTLINED, height=50)
 
     def update_character_value(index, attribute, new_value):
         char = characters_list[index]
@@ -167,6 +185,7 @@ def main(page: ft.Page):
         page.update()
 
     def update_ui():
+
         characters_view.controls.clear()
         btn_visible = page.width >= 750
         for index, char in enumerate(characters_list):
@@ -183,12 +202,9 @@ def main(page: ft.Page):
                     controls=[name_text, kd_input, hp_input, initiative_input, delete_btn],
                     alignment=ft.alignment.center, spacing=spacing_custom
                 )
-                container_ch = ft.Container(content=row_ch, padding=ft.padding.symmetric(horizontal=10),
-                                            bgcolor=first_color, height=50,
-                                            border_radius=20, animate=ft.animation.Animation(duration=100,
-                                                                                             curve=ft.AnimationCurve.EASE_IN_OUT),
-                                            on_hover=animate_container(color_on_hover=first_color_hover,
-                                                                       color_on_leave=first_color))
+                container_ch = ft.Card(content=row_ch,
+                                       height=60,
+                                       )
                 characters_view.controls.append(container_ch)
         page.update()
 
@@ -224,8 +240,7 @@ def main(page: ft.Page):
                                           elevation=0,
                                           on_click=show_drawer)
     name_input = ft.TextField(label="Имя персонажа",
-                              fill_color=first_color,
-                              border_color=first_color,
+                              filled=True,
                               border_radius=20,
                               on_submit=add_character,
                               expand=True, height=50)
@@ -256,9 +271,9 @@ def main(page: ft.Page):
             characters_list.append(char)
             update_ui()
 
-    rand_ini_btn = ft.ElevatedButton(text='Случ.ИНИ', expand=True, bgcolor=first_color, on_click=rand_ini)
-    sort_ini_btn = ft.ElevatedButton(text='Сортировать', expand=True, bgcolor=first_color, on_click=sort_ini())
-    next_turn_btn = ft.ElevatedButton(text='След. Ход', expand=True, bgcolor=first_color, on_click=next_turn)
+    rand_ini_btn = ft.ElevatedButton(text='Случ.ИНИ', expand=True, on_click=rand_ini, height=40)
+    sort_ini_btn = ft.ElevatedButton(text='Сортировать', expand=True, on_click=sort_ini(), height=40)
+    next_turn_btn = ft.ElevatedButton(text='След. Ход', expand=True, on_click=next_turn, height=40)
     btn_row = ft.Row(controls=[rand_ini_btn, sort_ini_btn, next_turn_btn])
     page.add(ft.Container(content=btn_row))
 
